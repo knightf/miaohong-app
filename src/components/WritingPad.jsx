@@ -2,8 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { Eye, EyeOff, RotateCcw, Sparkles } from 'lucide-react'
 import { kanjiVgUrl, normalizePoint, sampleSvgPath, traceMatchesStroke } from '../lib/stroke'
 
-const fallbackStroke = 'M 22 78 Q 50 18 78 78'
-
 export default function WritingPad({ kana, onComplete }) {
   const boardRef = useRef(null)
   const activePathRef = useRef(null)
@@ -17,8 +15,10 @@ export default function WritingPad({ kana, onComplete }) {
   const [loading, setLoading] = useState(true)
   const [animationKey, setAnimationKey] = useState(0)
   const [startPoint, setStartPoint] = useState(null)
+  const [dataMode, setDataMode] = useState('loading')
+  const [loadedCharacter, setLoadedCharacter] = useState(null)
 
-  const isComplete = paths.length > 0 && strokeIndex >= paths.length
+  const isComplete = dataMode === 'guided' && loadedCharacter === kana.character && paths.length > 0 && strokeIndex >= paths.length
   const currentPath = paths[strokeIndex]
 
   useEffect(() => {
@@ -28,10 +28,14 @@ export default function WritingPad({ kana, onComplete }) {
     setStrokeIndex(0)
     setFinishedTraces([])
     setCurrentTrace([])
+    setDataMode('loading')
+    setLoadedCharacter(null)
     setMessage('正在准备笔顺…')
 
     if (typeof fetch !== 'function') {
-      setPaths([fallbackStroke])
+      setDataMode('free')
+      setLoadedCharacter(kana.character)
+      setMessage('笔顺数据暂不可用，可自由临摹')
       setLoading(false)
       return () => { cancelled = true }
     }
@@ -47,14 +51,19 @@ export default function WritingPad({ kana, onComplete }) {
         const nextPaths = [...doc.querySelectorAll('path')]
           .filter((path) => /-s\d+$/.test(path.id))
           .map((path) => path.getAttribute('d'))
-        setPaths(nextPaths.length ? nextPaths : [fallbackStroke])
+        if (!nextPaths.length) throw new Error('stroke paths missing')
+        setPaths(nextPaths)
+        setDataMode('guided')
+        setLoadedCharacter(kana.character)
         setMessage('从红点起笔，沿虚线书写')
         setLoading(false)
       })
       .catch(() => {
         if (cancelled) return
-        setPaths([fallbackStroke])
-        setMessage('当前为自由临摹模式')
+        setPaths([])
+        setDataMode('free')
+        setLoadedCharacter(kana.character)
+        setMessage('笔顺数据暂不可用，可自由临摹')
         setLoading(false)
       })
 
@@ -64,8 +73,8 @@ export default function WritingPad({ kana, onComplete }) {
   useEffect(() => {
     if (!isComplete) return
     setMessage('完成！笔画顺序正确')
-    onComplete(kana.character)
-  }, [isComplete, kana.character, onComplete])
+    onComplete(loadedCharacter)
+  }, [isComplete, loadedCharacter, onComplete])
 
   useEffect(() => {
     if (!activePathRef.current || !currentPath) {
@@ -102,6 +111,13 @@ export default function WritingPad({ kana, onComplete }) {
   const finishStroke = () => {
     if (!drawing) return
     setDrawing(false)
+    if (dataMode === 'free') {
+      if (currentTrace.length > 3) setFinishedTraces((traces) => [...traces, currentTrace])
+      setCurrentTrace([])
+      setMessage('自由临摹不会计入笔顺进度')
+      return
+    }
+
     let accepted = currentTrace.length > 3
     try {
       if (activePathRef.current) {
@@ -125,7 +141,7 @@ export default function WritingPad({ kana, onComplete }) {
     setStrokeIndex(0)
     setFinishedTraces([])
     setCurrentTrace([])
-    setMessage('从红点起笔，沿虚线书写')
+    setMessage(dataMode === 'free' ? '笔顺数据暂不可用，可自由临摹' : '从红点起笔，沿虚线书写')
     setAnimationKey((key) => key + 1)
   }
 
@@ -139,8 +155,8 @@ export default function WritingPad({ kana, onComplete }) {
           <h2 id="writing-title">笔顺练习</h2>
         </div>
         <div className="stroke-counter" aria-live="polite">
-          <strong>{Math.min(strokeIndex + 1, paths.length || 1)}</strong>
-          <span>/ {paths.length || '—'} 笔</span>
+          <strong>{dataMode === 'free' ? '—' : Math.min(strokeIndex + 1, paths.length || 1)}</strong>
+          <span>{dataMode === 'free' ? '自由临摹' : `/ ${paths.length || '—'} 笔`}</span>
         </div>
       </div>
 
@@ -151,8 +167,9 @@ export default function WritingPad({ kana, onComplete }) {
         onPointerMove={handlePointerMove}
         onPointerUp={finishStroke}
         onPointerCancel={finishStroke}
-        role="application"
+        role="group"
         aria-label={`${kana.character} 的田字格书写区`}
+        aria-describedby="writing-instruction"
       >
         <span className="grid-line vertical" />
         <span className="grid-line horizontal" />
@@ -170,6 +187,7 @@ export default function WritingPad({ kana, onComplete }) {
               />
             ))}
           </g>
+          {dataMode === 'free' && <text x="50" y="70" textAnchor="middle" className="fallback-glyph">{kana.character}</text>}
           {finishedTraces.map((trace, index) => (
             <polyline key={index} points={traceToPoints(trace)} className="user-stroke finished" />
           ))}
@@ -185,17 +203,17 @@ export default function WritingPad({ kana, onComplete }) {
         )}
       </div>
 
-      <div className={`writing-feedback ${isComplete ? 'success' : ''}`} aria-live="polite">
+      <div id="writing-instruction" className={`writing-feedback ${isComplete ? 'success' : ''}`} aria-live="polite">
         <span className="feedback-number">{isComplete ? '✓' : strokeIndex + 1}</span>
         <span>{message}</span>
       </div>
 
       <div className="writing-actions">
-        <button onClick={() => setShowHint((value) => !value)}>
+        <button onClick={() => setShowHint((value) => !value)} disabled={dataMode !== 'guided'}>
           {showHint ? <EyeOff size={17} /> : <Eye size={17} />}
           {showHint ? '隐藏提示' : '显示提示'}
         </button>
-        <button onClick={() => setAnimationKey((key) => key + 1)}>
+        <button onClick={() => setAnimationKey((key) => key + 1)} disabled={dataMode !== 'guided'}>
           <Sparkles size={17} /> 演示本笔
         </button>
         <button onClick={reset}>

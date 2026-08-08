@@ -173,6 +173,7 @@ h1 em { color: var(--accent); font-style: normal; }
 .user-stroke { fill: none; stroke: var(--ink); stroke-width: 4.7; stroke-linecap: round; stroke-linejoin: round; }
 .user-stroke.finished { opacity: .9; }
 .start-dot { fill: var(--accent); stroke: var(--paper-strong); stroke-width: 1.2; animation: pulse-dot 1.25s ease-in-out infinite; }
+.fallback-glyph { fill: color-mix(in srgb, var(--ink), transparent 86%); font-family: 'Noto Serif JP', serif; font-size: 62px; }
 .board-loading { position: absolute; inset: 0; z-index: 4; display: grid; place-items: center; color: var(--muted); background: color-mix(in srgb, var(--paper-strong), transparent 8%); font-size: 11px; letter-spacing: .08em; }
 .completion-badge { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; color: var(--green); background: color-mix(in srgb, var(--paper-strong), transparent 14%); backdrop-filter: blur(2px); }
 .completion-badge strong { font-family: 'Noto Serif JP', serif; font-size: 16px; }
@@ -187,6 +188,7 @@ h1 em { color: var(--accent); font-style: normal; }
 .writing-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .writing-actions button { min-width: 0; padding: 8px 4px; display: flex; justify-content: center; align-items: center; gap: 5px; color: var(--muted); border: 1px solid var(--line); background: var(--paper-strong); border-radius: 8px; cursor: pointer; font-size: 9px; white-space: nowrap; }
 .writing-actions button:hover { color: var(--accent); border-color: var(--accent); }
+.writing-actions button:disabled { opacity: .42; cursor: not-allowed; color: var(--muted); border-color: var(--line); }
 .data-credit { margin: 10px 0 0; color: var(--faint); font-size: 8px; text-align: center; }
 
 .study-footer { margin-top: 18px; padding: 15px 20px; display: grid; grid-template-columns: auto minmax(100px, 280px) auto 1fr; align-items: center; gap: 13px; color: var(--muted); border-top: 1px solid var(--line); font-size: 10px; }

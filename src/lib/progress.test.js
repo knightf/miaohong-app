@@ -16,4 +16,21 @@ describe('learning progress', () => {
     saveProgress(value)
     expect(loadProgress()).toEqual(value)
   })
+
+  it('sanitizes invalid enums, selections, and unknown characters', () => {
+    localStorage.setItem('kana-mori-progress', JSON.stringify({
+      learned: ['あ', 'X'],
+      practiced: ['ア', '坏'],
+      theme: 'neon',
+      script: 'emoji',
+      category: 'all',
+      selected: 'X',
+    }))
+
+    expect(loadProgress()).toEqual({
+      ...createDefaultProgress(),
+      learned: ['あ'],
+      practiced: ['ア'],
+    })
+  })
 })
