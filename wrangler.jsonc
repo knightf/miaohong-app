@@ -1,0 +1,9 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "kana-mori",
+  "compatibility_date": "2025-09-24",
+  "main": "./worker/index.js",
+  "assets": {
+    "not_found_handling": "single-page-application"
+  }
+}
