@@ -40,4 +40,13 @@ describe('WritingPad', () => {
     expect(onComplete).not.toHaveBeenCalled()
     expect(screen.queryByText('笔画顺序正确')).not.toBeInTheDocument()
   })
+
+  it('offers a keyboard-operable way to confirm each guided stroke', async () => {
+    const onComplete = vi.fn()
+    render(<WritingPad kana={findKana('あ')} onComplete={onComplete} />)
+
+    const confirmStroke = await screen.findByRole('button', { name: '确认第 1 笔' })
+    fireEvent.click(confirmStroke)
+    await waitFor(() => expect(onComplete).toHaveBeenCalledWith('あ'))
+  })
 })

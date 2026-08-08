@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Eye, EyeOff, RotateCcw, Sparkles } from 'lucide-react'
+import { Check, Eye, EyeOff, RotateCcw, Sparkles } from 'lucide-react'
 import { kanjiVgUrl, normalizePoint, sampleSvgPath, traceMatchesStroke } from '../lib/stroke'
 
 export default function WritingPad({ kana, onComplete }) {
@@ -145,6 +145,12 @@ export default function WritingPad({ kana, onComplete }) {
     setAnimationKey((key) => key + 1)
   }
 
+  const confirmStrokeByKeyboard = () => {
+    if (dataMode !== 'guided' || isComplete) return
+    setStrokeIndex((index) => index + 1)
+    setMessage(strokeIndex + 1 >= paths.length ? '完成！已按顺序确认全部笔画' : '已确认，继续下一笔')
+  }
+
   const traceToPoints = (trace) => trace.map((point) => `${point.x},${point.y}`).join(' ')
 
   return (
@@ -215,6 +221,13 @@ export default function WritingPad({ kana, onComplete }) {
         </button>
         <button onClick={() => setAnimationKey((key) => key + 1)} disabled={dataMode !== 'guided'}>
           <Sparkles size={17} /> 演示本笔
+        </button>
+        <button
+          onClick={confirmStrokeByKeyboard}
+          disabled={dataMode !== 'guided' || isComplete}
+          aria-label={`确认第 ${Math.min(strokeIndex + 1, paths.length || 1)} 笔`}
+        >
+          <Check size={17} /> 逐笔确认
         </button>
         <button onClick={reset}>
           <RotateCcw size={17} /> 重写
