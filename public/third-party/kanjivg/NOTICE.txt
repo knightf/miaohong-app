@@ -1,0 +1,17 @@
+KanjiVG kana stroke paths
+
+Original work: KanjiVG
+Original author: Ulrich Apel
+Source snapshot:
+https://github.com/KanjiVG/kanjivg/tree/bd13ffbcc9d85cb86ae98bbbf001d9069220b901
+
+License: Creative Commons Attribution-ShareAlike 3.0 (CC BY-SA 3.0)
+https://creativecommons.org/licenses/by-sa/3.0/
+
+Modifications made for Kana Mori:
+Ordered SVG path `d` values were extracted for the 162 hiragana and
+katakana characters used by the application. Other SVG metadata was removed.
+
+The derived stroke dataset is distributed under CC BY-SA 3.0. The surrounding
+Kana Mori application is a collection; this notice does not change the license
+of unrelated application code.

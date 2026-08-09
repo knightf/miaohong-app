@@ -27,11 +27,6 @@ export function traceMatchesStroke(actual, expected, tolerance = 18) {
   return averageNearestDistance <= tolerance
 }
 
-export function kanjiVgUrl(character) {
-  const codePoint = character.codePointAt(0).toString(16).padStart(5, '0')
-  return `https://raw.githubusercontent.com/KanjiVG/kanjivg/master/kanji/${codePoint}.svg`
-}
-
 export function sampleSvgPath(path, sampleCount = 36) {
   const length = path.getTotalLength()
   return Array.from({ length: sampleCount }, (_, index) => {
@@ -39,4 +34,3 @@ export function sampleSvgPath(path, sampleCount = 36) {
     return { x: (point.x / 109) * 100, y: (point.y / 109) * 100 }
   })
 }
-

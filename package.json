@@ -8,20 +8,22 @@
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "update:strokes": "node scripts/update-kana-strokes.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "5.1.1",
-    "vite": "7.2.4",
+    "lucide-react": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "lucide-react": "latest"
+    "vite": "7.2.4"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.13.7",
     "@testing-library/jest-dom": "6.6.3",
     "@testing-library/react": "latest",
     "jsdom": "26.1.0",
+    "vite-plugin-pwa": "1.3.0",
     "vitest": "4.0.18",
     "wrangler": "4.40.2"
   }

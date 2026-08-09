@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Check, Eye, EyeOff, RotateCcw, Sparkles } from 'lucide-react'
-import { kanjiVgUrl, normalizePoint, sampleSvgPath, traceMatchesStroke } from '../lib/stroke'
+import { normalizePoint, sampleSvgPath, traceMatchesStroke } from '../lib/stroke'
+import { loadStrokePaths } from '../lib/strokeData'
 
 export default function WritingPad({ kana, onComplete }) {
   const boardRef = useRef(null)
@@ -13,12 +14,13 @@ export default function WritingPad({ kana, onComplete }) {
   const [showHint, setShowHint] = useState(true)
   const [message, setMessage] = useState('从红点起笔，沿虚线书写')
   const [loading, setLoading] = useState(true)
-  const [animationKey, setAnimationKey] = useState(0)
   const [startPoint, setStartPoint] = useState(null)
   const [dataMode, setDataMode] = useState('loading')
   const [loadedCharacter, setLoadedCharacter] = useState(null)
+  const [demoIndex, setDemoIndex] = useState(-1)
 
   const isComplete = dataMode === 'guided' && loadedCharacter === kana.character && paths.length > 0 && strokeIndex >= paths.length
+  const isPlaying = demoIndex >= 0 && demoIndex < paths.length
   const currentPath = paths[strokeIndex]
 
   useEffect(() => {
@@ -30,28 +32,13 @@ export default function WritingPad({ kana, onComplete }) {
     setCurrentTrace([])
     setDataMode('loading')
     setLoadedCharacter(null)
+    setDemoIndex(-1)
     setMessage('正在准备笔顺…')
 
-    if (typeof fetch !== 'function') {
-      setDataMode('free')
-      setLoadedCharacter(kana.character)
-      setMessage('笔顺数据暂不可用，可自由临摹')
-      setLoading(false)
-      return () => { cancelled = true }
-    }
-
-    fetch(kanjiVgUrl(kana.character))
-      .then((response) => {
-        if (!response.ok) throw new Error('stroke data unavailable')
-        return response.text()
-      })
-      .then((svgText) => {
+    loadStrokePaths(kana.character)
+      .then((nextPaths) => {
         if (cancelled) return
-        const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml')
-        const nextPaths = [...doc.querySelectorAll('path')]
-          .filter((path) => /-s\d+$/.test(path.id))
-          .map((path) => path.getAttribute('d'))
-        if (!nextPaths.length) throw new Error('stroke paths missing')
+        if (!nextPaths?.length) throw new Error('stroke paths missing')
         setPaths(nextPaths)
         setDataMode('guided')
         setLoadedCharacter(kana.character)
@@ -87,7 +74,7 @@ export default function WritingPad({ kana, onComplete }) {
     } catch {
       setStartPoint(null)
     }
-  }, [currentPath, animationKey])
+  }, [currentPath])
 
   const pointerPoint = (event) => {
     const rect = boardRef.current.getBoundingClientRect()
@@ -95,7 +82,7 @@ export default function WritingPad({ kana, onComplete }) {
   }
 
   const handlePointerDown = (event) => {
-    if (loading || isComplete) return
+    if (loading || isComplete || isPlaying) return
     event.currentTarget.setPointerCapture?.(event.pointerId)
     setDrawing(true)
     setCurrentTrace([pointerPoint(event)])
@@ -141,8 +128,31 @@ export default function WritingPad({ kana, onComplete }) {
     setStrokeIndex(0)
     setFinishedTraces([])
     setCurrentTrace([])
+    setDemoIndex(-1)
     setMessage(dataMode === 'free' ? '笔顺数据暂不可用，可自由临摹' : '从红点起笔，沿虚线书写')
-    setAnimationKey((key) => key + 1)
+  }
+
+  const togglePlayback = () => {
+    if (isPlaying) {
+      setDemoIndex(-1)
+      setMessage('笔顺演示已停止')
+      return
+    }
+    if (dataMode !== 'guided' || !paths.length) return
+    setShowHint(true)
+    setDemoIndex(0)
+    setMessage(`正在演示第 1 / ${paths.length} 笔`)
+  }
+
+  const advancePlayback = () => {
+    const nextIndex = demoIndex + 1
+    if (nextIndex >= paths.length) {
+      setDemoIndex(paths.length)
+      setMessage('笔顺演示完成，可以开始临摹')
+      return
+    }
+    setDemoIndex(nextIndex)
+    setMessage(`正在演示第 ${nextIndex + 1} / ${paths.length} 笔`)
   }
 
   const confirmStrokeByKeyboard = () => {
@@ -167,7 +177,7 @@ export default function WritingPad({ kana, onComplete }) {
       </div>
 
       <div
-        className={`practice-board ${isComplete ? 'complete' : ''}`}
+        className={`practice-board ${isComplete ? 'complete' : ''} ${isPlaying ? 'playing' : ''}`}
         ref={boardRef}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -185,7 +195,7 @@ export default function WritingPad({ kana, onComplete }) {
           <g transform="scale(.91743)">
             {paths.map((path, index) => (
               <path
-                key={`${kana.character}-${index}-${index === strokeIndex ? animationKey : 0}`}
+                key={`${kana.character}-${index}`}
                 ref={index === strokeIndex ? activePathRef : undefined}
                 d={path}
                 className={index < strokeIndex ? 'reference-stroke done' : index === strokeIndex ? 'reference-stroke active' : 'reference-stroke pending'}
@@ -193,6 +203,24 @@ export default function WritingPad({ kana, onComplete }) {
               />
             ))}
           </g>
+          {demoIndex >= 0 && (
+            <g transform="scale(.91743)" className="demo-layer">
+              {paths.map((path, index) => {
+                if (index > demoIndex) return null
+                const playing = index === demoIndex && isPlaying
+                return (
+                  <path
+                    key={`demo-${kana.character}-${index}-${demoIndex}`}
+                    data-testid={`demo-stroke-${index}`}
+                    d={path}
+                    pathLength="1"
+                    className={`demo-stroke ${playing ? 'playing' : 'done'}`}
+                    onAnimationEnd={playing ? advancePlayback : undefined}
+                  />
+                )
+              })}
+            </g>
+          )}
           {dataMode === 'free' && <text x="50" y="70" textAnchor="middle" className="fallback-glyph">{kana.character}</text>}
           {finishedTraces.map((trace, index) => (
             <polyline key={index} points={traceToPoints(trace)} className="user-stroke finished" />
@@ -215,16 +243,16 @@ export default function WritingPad({ kana, onComplete }) {
       </div>
 
       <div className="writing-actions">
-        <button onClick={() => setShowHint((value) => !value)} disabled={dataMode !== 'guided'}>
+        <button onClick={() => setShowHint((value) => !value)} disabled={dataMode !== 'guided' || isPlaying}>
           {showHint ? <EyeOff size={17} /> : <Eye size={17} />}
           {showHint ? '隐藏提示' : '显示提示'}
         </button>
-        <button onClick={() => setAnimationKey((key) => key + 1)} disabled={dataMode !== 'guided'}>
-          <Sparkles size={17} /> 演示本笔
+        <button onClick={togglePlayback} disabled={dataMode !== 'guided'} aria-label={isPlaying ? '停止播放' : '逐笔播放'}>
+          <Sparkles size={17} /> {isPlaying ? '停止播放' : '逐笔播放'}
         </button>
         <button
           onClick={confirmStrokeByKeyboard}
-          disabled={dataMode !== 'guided' || isComplete}
+          disabled={dataMode !== 'guided' || isComplete || isPlaying}
           aria-label={`确认第 ${Math.min(strokeIndex + 1, paths.length || 1)} 笔`}
         >
           <Check size={17} /> 逐笔确认
@@ -233,7 +261,9 @@ export default function WritingPad({ kana, onComplete }) {
           <RotateCcw size={17} /> 重写
         </button>
       </div>
-      <p className="data-credit">笔顺数据由 KanjiVG 提供 · CC BY-SA 3.0</p>
+      <p className="data-credit">
+        笔顺数据由 <a href="/third-party/kanjivg/NOTICE.txt">KanjiVG</a> 提供 · CC BY-SA 3.0
+      </p>
     </section>
   )
 }

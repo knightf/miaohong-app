@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BookOpen, Flame, Moon, Sun } from 'lucide-react'
 import CharacterBrowser from './components/CharacterBrowser'
+import PwaControls from './components/PwaControls'
 import StudyCard from './components/StudyCard'
 import WritingPad from './components/WritingPad'
 import { ALL_KANA, findKana, getScriptCharacters } from './data/kana'
-import { loadProgress, progressPercent, saveProgress } from './lib/progress'
+import { loadProgress, saveProgress } from './lib/progress'
 
 export default function App() {
   const [progress, setProgress] = useState(loadProgress)
@@ -15,7 +16,7 @@ export default function App() {
     return selected || getScriptCharacters(progress.script, progress.category)[0]
   }, [progress.selected, progress.script, progress.category])
 
-  const percent = progressPercent(progress.learned, ALL_KANA.length)
+  const learnedCount = new Set(progress.learned).size
   const visibleCount = getScriptCharacters(progress.script, progress.category).length
   const visibleLearned = progress.learned.filter((character) => {
     const item = findKana(character)
@@ -87,12 +88,11 @@ export default function App() {
           </span>
         </a>
 
-        <div className="header-progress" aria-label={`总学习进度 ${percent}%`}>
+        <div className="header-progress" aria-label={`总学习进度 已掌握 ${learnedCount} / ${ALL_KANA.length}`}>
           <div className="progress-copy">
-            <span><Flame size={14} fill="currentColor" /> 学习进度</span>
-            <strong>{percent}%</strong>
+            <span><Flame size={14} fill="currentColor" /> 已掌握</span>
+            <strong>{learnedCount} / {ALL_KANA.length}</strong>
           </div>
-          <div className="progress-track"><span style={{ width: `${percent}%` }} /></div>
         </div>
 
         <nav className="header-actions" aria-label="页面设置">
@@ -100,6 +100,7 @@ export default function App() {
             <button className={progress.script === 'hiragana' ? 'active' : ''} onClick={() => switchScript('hiragana')} aria-label="平假名">平</button>
             <button className={progress.script === 'katakana' ? 'active' : ''} onClick={() => switchScript('katakana')} aria-label="片假名">片</button>
           </div>
+          <PwaControls />
           <button
             className="icon-button"
             onClick={() => update({ theme: progress.theme === 'light' ? 'dark' : 'light' })}
@@ -145,8 +146,7 @@ export default function App() {
         </div>
 
         <footer className="study-footer">
-          <span>本组进度</span>
-          <div className="footer-track"><span style={{ width: `${(visibleLearned / visibleCount) * 100}%` }} /></div>
+          <span>本组已掌握</span>
           <strong>{visibleLearned} / {visibleCount}</strong>
           <span className="footer-encouragement">今日也一步一步来。</span>
         </footer>
