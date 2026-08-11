@@ -80,11 +80,11 @@ export default function App() {
   return (
     <div className="app-shell">
       <header className="site-header">
-        <a href="#main" className="brand" aria-label="Kana Mori 首页">
-          <span className="brand-seal">かな</span>
+        <a href="#main" className="brand" aria-label="描红首页">
+          <span className="brand-seal">あ</span>
           <span>
-            <strong>KANA MORI</strong>
-            <small>日文字符练习帖</small>
+            <strong>描红</strong>
+            <small>日语假名描红练习</small>
           </span>
         </a>
 
@@ -114,10 +114,10 @@ export default function App() {
       <main id="main">
         <div className="intro-row">
           <div>
-            <p className="eyebrow"><BookOpen size={14} /> GOJŪON STUDY DESK</p>
-            <h1>{progress.script === 'hiragana' ? '平假名' : '片假名'}，<em>读写一起记。</em></h1>
+            <p className="eyebrow"><BookOpen size={14} /> KANA TRACING DESK</p>
+            <h1>{progress.script === 'hiragana' ? '平假名' : '片假名'}，<em>顺着笔势描。</em></h1>
           </div>
-          <p className="intro-note">先听清声音，再顺着笔势写下来。每天十分钟，让手和耳朵一起形成记忆。</p>
+          <p className="intro-note">先听清读音，再沿着笔顺描下来。每天十分钟，让手和耳朵一起形成记忆。</p>
         </div>
 
         <div className="mobile-script-tabs" role="tablist" aria-label="假名类型">

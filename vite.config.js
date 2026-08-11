@@ -8,9 +8,9 @@ const pwaPlugins = VitePWA({
   injectRegister: false,
   manifest: {
     id: '/',
-    name: 'Kana Mori · 日文字符练习',
-    short_name: 'Kana Mori',
-    description: '学习平假名与片假名的读音、笔顺与书写。',
+    name: '描红 · 日语假名描红练习',
+    short_name: '描红',
+    description: '在线练习平假名与片假名，跟随笔顺描红、听读并记录学习进度。',
     lang: 'zh-CN',
     start_url: '/',
     scope: '/',
@@ -20,9 +20,9 @@ const pwaPlugins = VitePWA({
     background_color: '#f3efe7',
     categories: ['education'],
     icons: [
-      { src: '/icons/pwa-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-      { src: '/icons/pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
-      { src: '/icons/pwa-maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+      { src: '/icons/miaohong-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+      { src: '/icons/miaohong-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+      { src: '/icons/miaohong-maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
     ],
   },
   workbox: {

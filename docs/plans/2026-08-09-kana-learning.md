@@ -1,4 +1,4 @@
-# Kana Mori Japanese Learning Implementation Plan
+# 描红 Japanese Kana Tracing Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 

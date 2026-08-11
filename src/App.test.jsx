@@ -14,7 +14,19 @@ beforeEach(() => {
   })
 })
 
-describe('Kana Mori app', () => {
+describe('描红 app', () => {
+  it('presents the 描红 brand and kana tracing positioning', () => {
+    render(<App />)
+
+    const brand = screen.getByRole('link', { name: '描红首页' })
+    expect(brand).toHaveTextContent('あ')
+    expect(brand).toHaveTextContent('描红')
+    expect(brand).toHaveTextContent('日语假名描红练习')
+    expect(screen.getByText('KANA TRACING DESK')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('平假名，顺着笔势描。')
+    expect(screen.getByText('先听清读音，再沿着笔顺描下来。每天十分钟，让手和耳朵一起形成记忆。')).toBeInTheDocument()
+  })
+
   it('renders the PWA install controls in the page header', () => {
     render(<App />)
     expect(screen.getByRole('navigation', { name: '页面设置' })).toContainElement(

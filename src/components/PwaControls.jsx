@@ -95,7 +95,7 @@ export default function PwaControls() {
             </button>
             <span className="pwa-dialog-icon"><Share2 size={24} /></span>
             <p className="eyebrow">INSTALL APP</p>
-            <h2 id="pwa-install-title">安装 Kana Mori</h2>
+            <h2 id="pwa-install-title">安装描红</h2>
             {ios ? (
               <>
                 <p>在 Safari 中点按分享，然后选择添加到主屏幕。</p>

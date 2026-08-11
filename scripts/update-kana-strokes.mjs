@@ -98,7 +98,7 @@ async function generateStrokeDataset() {
       commit: KANJIVG_COMMIT,
       license: 'CC BY-SA 3.0',
       licenseUrl: 'https://creativecommons.org/licenses/by-sa/3.0/',
-      modifications: 'Extracted ordered SVG path d values for the 162 kana used by Kana Mori; removed other SVG metadata.',
+      modifications: 'Extracted ordered SVG path d values for the 162 kana used by 描红 (miaohong.app); removed other SVG metadata.',
       characterCount: characters.length,
       strokeCount,
       viewBox: [0, 0, 109, 109],

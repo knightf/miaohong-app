@@ -68,7 +68,7 @@ describe('PWA controls', () => {
     render(<PwaControls />)
 
     fireEvent.click(screen.getByRole('button', { name: '安装应用' }))
-    expect(screen.getByRole('dialog', { name: '安装 Kana Mori' })).toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: '安装描红' })).toBeInTheDocument()
     expect(screen.getByText(/分享.*添加到主屏幕/)).toBeInTheDocument()
     expect(screen.getByText(/Safari 里的既有学习进度不会自动迁移/)).toBeInTheDocument()
   })
