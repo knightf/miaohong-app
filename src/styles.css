@@ -7,6 +7,8 @@
   --paper: #faf8f2;
   --paper-strong: #fffefa;
   --ink: #242521;
+  --control-active-bg: #242521;
+  --control-active-fg: #fff;
   --muted: #77776f;
   --faint: #a8a79e;
   --line: #dcd6ca;
@@ -25,6 +27,8 @@
   --paper: #20211f;
   --paper-strong: #282925;
   --ink: #eeece5;
+  --control-active-bg: #eeece5;
+  --control-active-fg: #1f211e;
   --muted: #a8a89f;
   --faint: #797a73;
   --line: #3c3d38;
@@ -82,7 +86,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid color-mix(in srgb, va
 .script-switcher { padding: 3px; display: flex; border: 1px solid var(--line); border-radius: 10px; background: var(--paper-strong); }
 .script-switcher button, .icon-button { border: 0; color: var(--muted); background: transparent; cursor: pointer; }
 .script-switcher button { width: 34px; height: 30px; border-radius: 7px; font-weight: 700; }
-.script-switcher button.active { color: #fff; background: var(--ink); }
+.script-switcher button.active { color: var(--control-active-fg); background: var(--control-active-bg); }
 .icon-button { width: 38px; height: 38px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 10px; background: var(--paper-strong); }
 .icon-button:hover { color: var(--accent); }
 .install-button { color: var(--accent); }
@@ -95,7 +99,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid color-mix(in srgb, va
 .pwa-dialog-close { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; display: grid; place-items: center; border: 0; color: var(--muted); background: transparent; border-radius: 9px; cursor: pointer; }
 .pwa-dialog-close:hover { color: var(--accent); background: var(--accent-soft); }
 .pwa-dialog .pwa-dialog-note { padding: 10px 12px; background: var(--accent-soft); border-radius: 10px; font-size: 11px; }
-.pwa-dialog-confirm { width: 100%; padding: 11px 16px; border: 0; color: #fff; background: var(--ink); border-radius: 11px; cursor: pointer; font-weight: 700; }
+.pwa-dialog-confirm { width: 100%; padding: 11px 16px; border: 0; color: var(--control-active-fg); background: var(--control-active-bg); border-radius: 11px; cursor: pointer; font-weight: 700; }
 
 .pwa-toast-stack { position: fixed; right: max(18px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); z-index: 90; width: min(390px, calc(100vw - 24px)); display: grid; gap: 10px; }
 .pwa-toast { padding: 13px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 11px; color: var(--ink); background: color-mix(in srgb, var(--paper-strong), transparent 3%); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); backdrop-filter: blur(16px); }
@@ -158,8 +162,7 @@ h1 em { color: var(--accent); font-style: normal; }
 .romaji-reading { margin: 0; font-family: inherit; font-size: 25px; font-weight: 700; letter-spacing: .18em; }
 .reading-note { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
 .reading-note strong { color: var(--accent); font-size: 14px; }
-.listen-button { width: 100%; padding: 11px 14px; display: grid; grid-template-columns: 42px 1fr auto; align-items: center; gap: 11px; border: 0; color: #fff; background: var(--ink); border-radius: 12px; cursor: pointer; text-align: left; }
-:root[data-theme='dark'] .listen-button { color: #1f211e; background: #ecebe5; }
+.listen-button { width: 100%; padding: 11px 14px; display: grid; grid-template-columns: 42px 1fr auto; align-items: center; gap: 11px; border: 0; color: var(--control-active-fg); background: var(--control-active-bg); border-radius: 12px; cursor: pointer; text-align: left; }
 .listen-button:hover .listen-icon { transform: scale(1.08); }
 .listen-icon { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: var(--accent); transition: transform .2s ease; }
 .listen-button span:nth-child(2) { display: flex; flex-direction: column; }
@@ -241,7 +244,7 @@ h1 em { color: var(--accent); font-style: normal; }
   .mobile-script-tabs { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; margin-bottom: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
   .mobile-script-tabs button { padding: 9px; display: flex; flex-direction: column; align-items: center; gap: 2px; border: 0; color: var(--muted); background: transparent; border-radius: 9px; font-weight: 700; }
   .mobile-script-tabs button span { font-size: 7px; letter-spacing: .12em; font-weight: 500; }
-  .mobile-script-tabs button.active { color: #fff; background: var(--ink); }
+  .mobile-script-tabs button.active { color: var(--control-active-fg); background: var(--control-active-bg); }
   .learning-layout { grid-template-columns: 1fr; gap: 12px; }
   .browser-panel { grid-column: auto; order: 1; }
   .study-card { order: 2; }
