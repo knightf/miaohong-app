@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import PwaControls from './PwaControls'
 
@@ -41,6 +41,7 @@ describe('PWA controls', () => {
   })
 
   afterEach(() => {
+    vi.useRealTimers()
     vi.restoreAllMocks()
     vi.unstubAllGlobals()
   })
@@ -81,17 +82,33 @@ describe('PWA controls', () => {
     expect(screen.queryByRole('button', { name: '安装应用' })).not.toBeInTheDocument()
   })
 
-  it('shows offline readiness and lets the user accept an update', () => {
+  it('dismisses the offline-ready notice after three seconds', () => {
+    vi.useFakeTimers()
     registrationState.offlineReady = true
-    registrationState.needRefresh = true
     render(<PwaControls />)
 
     expect(screen.getByText('已可离线使用')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: '知道了' }))
-    expect(registrationState.setOfflineReady).toHaveBeenCalledWith(false)
+    expect(screen.queryByRole('button', { name: '知道了' })).not.toBeInTheDocument()
 
-    expect(screen.getByText('新版本已准备好')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: '立即更新' }))
+    act(() => vi.advanceTimersByTime(2999))
+    expect(registrationState.setOfflineReady).not.toHaveBeenCalled()
+
+    act(() => vi.advanceTimersByTime(1))
+    expect(registrationState.setOfflineReady).toHaveBeenCalledWith(false)
+  })
+
+  it('shows a header update indicator instead of an update toast', () => {
+    registrationState.needRefresh = true
+    render(<PwaControls />)
+
+    const updateButton = screen.getByRole('button', { name: '有新版本，点击更新' })
+    expect(updateButton).toHaveAttribute('data-tooltip', '有新版本，点击更新')
+    expect(updateButton).not.toHaveAttribute('title')
+    expect(screen.queryByText('新版本已准备好')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '稍后' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '立即更新' })).not.toBeInTheDocument()
+
+    fireEvent.click(updateButton)
     expect(registrationState.updateServiceWorker).toHaveBeenCalledWith(true)
   })
 })

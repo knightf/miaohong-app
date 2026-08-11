@@ -23,3 +23,20 @@ describe('theme-aware active controls', () => {
     expect(styles).not.toMatch(/color:\s*#fff;\s*background:\s*var\(--ink\)/)
   })
 })
+
+describe('PWA status motion', () => {
+  it('highlights the header update action and fades the offline notice', () => {
+    expect(styles).toContain('.pwa-update-button {')
+    expect(styles).toContain('animation: pwa-update-pulse 2s ease-in-out infinite;')
+    expect(styles).toContain('@keyframes pwa-update-pulse')
+    expect(styles).toContain('.pwa-offline-toast { animation: pwa-offline-toast 3s ease forwards; }')
+    expect(styles).toContain('@keyframes pwa-offline-toast')
+    expect(styles).toContain('.pwa-update-button::after {')
+    expect(styles).toContain('.pwa-update-button:hover::after, .pwa-update-button:focus-visible::after {')
+  })
+
+  it('disables PWA status animations when reduced motion is requested', () => {
+    expect(styles).toContain('@media (prefers-reduced-motion: reduce)')
+    expect(styles).toContain('.pwa-update-button, .pwa-offline-toast { animation: none; }')
+  })
+})

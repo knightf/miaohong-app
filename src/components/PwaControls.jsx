@@ -26,7 +26,7 @@ export default function PwaControls() {
   const ios = useMemo(isIosDevice, [])
   const {
     offlineReady: [offlineReady, setOfflineReady],
-    needRefresh: [needRefresh, setNeedRefresh],
+    needRefresh: [needRefresh],
     updateServiceWorker,
   } = useRegisterSW()
 
@@ -62,6 +62,12 @@ export default function PwaControls() {
     return () => window.removeEventListener('keydown', closeOnEscape)
   }, [guideOpen])
 
+  useEffect(() => {
+    if (!offlineReady) return undefined
+    const timeout = window.setTimeout(() => setOfflineReady(false), 3000)
+    return () => window.clearTimeout(timeout)
+  }, [offlineReady, setOfflineReady])
+
   const install = async () => {
     if (!installPrompt) {
       setGuideOpen(true)
@@ -82,6 +88,17 @@ export default function PwaControls() {
       {showInstall && (
         <button className="icon-button install-button" onClick={install} aria-label="安装应用">
           <Download size={19} />
+        </button>
+      )}
+
+      {needRefresh && (
+        <button
+          className="icon-button pwa-update-button"
+          onClick={() => updateServiceWorker(true)}
+          aria-label="有新版本，点击更新"
+          data-tooltip="有新版本，点击更新"
+        >
+          <RefreshCw size={19} />
         </button>
       )}
 
@@ -109,25 +126,12 @@ export default function PwaControls() {
         </div>
       )}
 
-      {(offlineReady || needRefresh) && (
+      {offlineReady && (
         <div className="pwa-toast-stack" aria-live="polite">
-          {offlineReady && (
-            <div className="pwa-toast" role="status">
-              <WifiOff size={19} />
-              <div><strong>已可离线使用</strong><span>页面与全部假名笔顺已缓存。</span></div>
-              <button onClick={() => setOfflineReady(false)} aria-label="知道了">知道了</button>
-            </div>
-          )}
-          {needRefresh && (
-            <div className="pwa-toast" role="status">
-              <RefreshCw size={19} />
-              <div><strong>新版本已准备好</strong><span>刷新后即可使用最新内容。</span></div>
-              <div className="pwa-toast-actions">
-                <button onClick={() => setNeedRefresh(false)}>稍后</button>
-                <button className="primary" onClick={() => updateServiceWorker(true)}>立即更新</button>
-              </div>
-            </div>
-          )}
+          <div className="pwa-toast pwa-offline-toast" role="status">
+            <WifiOff size={19} />
+            <div><strong>已可离线使用</strong><span>页面与全部假名笔顺已缓存。</span></div>
+          </div>
         </div>
       )}
     </>
